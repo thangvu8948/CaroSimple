@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Caro"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
-    <Canvas x:Name="UICanvas">
-        
+        Title="MainWindow" Height="600" Width="800" Loaded="Window_Loaded">
+    <Canvas x:Name="UICanvas" Margin="10">
+        <Menu>
+            <MenuItem Header="Restart"/>
+            <MenuItem Header="Save" Click="Save_Click"/>
+            <MenuItem Header="Load/" Click="Load_Click"/>
+        </Menu>
     </Canvas>
 </Window>

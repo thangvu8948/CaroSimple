@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,15 +29,20 @@ namespace Caro
         }
 
         int[,] _a;
+        Button[,] _buttons;
+
         const int Rows = 6;
         const int Cols = 6;
         const int ButtonWidth = 70;
         const int ButtonHeigth = 70;
         const int WinCondition = 5;
-
+        const int Padding = 1;
+        const int TopOffset = 50;
+        const int LeftOffset = 50;
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _a = new int[Rows, Cols];
+            _buttons = new Button[Rows, Cols];
 
             for (int i = 0; i < Rows; i++)
             {
@@ -46,12 +53,14 @@ namespace Caro
                     button.Height = ButtonHeigth;
                     button.Tag = new Tuple<int, int>(i, j);
                     button.Click += Button_Click;
+                    button.BorderThickness =  new Thickness(2,2,2,2);
 
+                    //Dua vao model quan li UI
+                    _buttons[i, j] = button;
                     //add button to UI
                     UICanvas.Children.Add(button);
-                    Canvas.SetLeft(button, j * ButtonWidth);
-                    Canvas.SetTop(button, i * ButtonHeigth);
-
+                    Canvas.SetLeft(button, LeftOffset + j * (ButtonWidth + Padding));
+                    Canvas.SetTop(button, TopOffset + i * (ButtonHeigth +Padding) + Padding);
                 }
                 Debug.WriteLine("");
             }
@@ -264,6 +273,71 @@ namespace Caro
         private bool checkWinDiagonal(int[,] a, int i, int j)
         {
             return checkWinDiagonalToLeft(a, i, j) || checkWinDiagonalToRight(a, i, j);
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            const string filename = "save.txt";
+
+            var writer = new StreamWriter(filename);
+            //Dong dau tien la luot di hien tai
+            writer.WriteLine(isXTurn ?"X" : "O");
+
+            for (int i = 0; i < Cols; i++)
+            {
+                for (int j =0; j < Rows; j++)
+                {
+                    writer.Write($"{_a[i, j]}");
+                    if (j != Cols)
+                    {
+                        writer.Write(" ");
+                    }
+                }
+                writer.WriteLine("");
+            }
+            writer.Close();
+
+            MessageBox.Show("Game saved");
+        }
+
+        private void Load_Click(object sender, RoutedEventArgs e)
+        {
+            var screen = new OpenFileDialog();
+            if (screen.ShowDialog() == true)
+            {
+                var filename = screen.FileName;
+
+                StreamReader reader = new StreamReader(filename);
+                var firstLine = reader.ReadLine();
+                isXTurn = firstLine == "X";
+
+                for (int i = 0; i < Rows; i++)
+                {
+                    var tokens = reader.ReadLine().Split(
+                        new string[] { " " }, StringSplitOptions.None);
+                    //Model
+
+                    for (int j = 0; j < Cols; j++)
+                    {
+                        _a[i, j] = int.Parse(tokens[j]);
+                        //UI
+                        if (_a[i, j] == 1)
+                        {
+                            _buttons[i, j].Content = "X";
+                        }
+                        if (_a[i, j] == 2)
+                        {
+                            _buttons[i, j].Content = "O";
+                        }
+                    }
+                }
+                MessageBox.Show("Game is Loaded");
+            }
         }
     }
 }
