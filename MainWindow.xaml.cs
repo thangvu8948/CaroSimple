@@ -298,15 +298,22 @@ namespace Caro
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+
+            SaveGame();
+            MessageBox.Show("Game saved");
+        }
+
+        private void SaveGame()
+        {
             const string filename = "save.txt";
 
             var writer = new StreamWriter(filename);
             //Dong dau tien la luot di hien tai
-            writer.WriteLine(isXTurn ?"X" : "O");
+            writer.WriteLine(isXTurn ? "X" : "O");
 
             for (int i = 0; i < Cols; i++)
             {
-                for (int j =0; j < Rows; j++)
+                for (int j = 0; j < Rows; j++)
                 {
                     writer.Write($"{_a[i, j]}");
                     if (j != Cols)
@@ -317,8 +324,6 @@ namespace Caro
                 writer.WriteLine("");
             }
             writer.Close();
-
-            MessageBox.Show("Game saved");
         }
 
         private void Load_Click(object sender, RoutedEventArgs e)
@@ -383,5 +388,26 @@ namespace Caro
                     break;
             }
         }
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            //do my stuff before closing
+            e.Cancel = true;
+            MessageBoxResult result = MessageBox.Show("Do you want save before exit?", "Caro", MessageBoxButton.YesNoCancel);
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    SaveGame();
+                    e.Cancel = false;
+                    break;
+                case MessageBoxResult.No:
+                    e.Cancel = false;
+                    base.OnClosing(e);
+                    break;
+                case MessageBoxResult.Cancel:
+                    break;
+            }
+            base.OnClosing(e);
+        }
     }
+
 }
