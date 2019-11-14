@@ -37,8 +37,10 @@ namespace Caro
         const int ButtonHeigth = 70;
         const int WinCondition = 5;
         const int Padding = 1;
-        const int TopOffset = 50;
+        const int TopOffset = 50; 
         const int LeftOffset = 50;
+        bool gameOver = false;
+        int couldPlace = Rows * Cols;
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _a = new int[Rows, Cols];
@@ -75,7 +77,7 @@ namespace Caro
 
            // MessageBox.Show($"Click on button {i} - {j}");
 
-            if (_a[i,j] == 0)
+            if (_a[i,j] == 0 && !gameOver)
             {
                 if (isXTurn)
                 {
@@ -89,35 +91,49 @@ namespace Caro
                 }
                 isXTurn = !isXTurn;
 
+                couldPlace -= 1;
+               
                 var (gameOver, xWin) = checkWin(_a, i, j);
                 if (gameOver)
                 {
-                    if (xWin)
+                    string result = (xWin == 1) ? "X Win" : (xWin == 2) ? "O Win" : "Draw";
+
+                    MessageBoxResult msbResult = MessageBox.Show($"{result}\nNew Game?", "Caro", MessageBoxButton.YesNo);
+                    switch (msbResult)
                     {
-                        MessageBox.Show("X Win");
-                    } else
-                    {
-                        MessageBox.Show("O Win");
+                        case MessageBoxResult.Yes:
+                            NewGame();
+                            break;
+                        case MessageBoxResult.No:
+                            break;
                     }
+
                 }
             }
 
         }
 
-        private (bool, bool) checkWin(int[,] a, int i, int j)
+        private (bool, int) checkWin(int[,] a, int i, int j)
         {
-            var gameOver = false;
-            var xWin = false;
+            var xWin = 1;
 
             if (checkWinHorizontal(_a, i, j) || checkWinVertical(_a, i, j)
                 || checkWinDiagonal(_a, i, j))
             {
                 gameOver = true;
-                xWin = _a[i, j] == 1;
+                if (_a[i, j] == 1) xWin = 1;
+                if (_a[i, j] == 2) xWin = 2;
+                return (gameOver, xWin);
             }
-
-
+            
+            if (couldPlace == 0)
+            {
+                gameOver = true;
+                xWin = 0;
+            }
             return (gameOver, xWin);
+
+            
         }
 
         /* Xet chieu ngang*/
@@ -337,6 +353,34 @@ namespace Caro
                     }
                 }
                 MessageBox.Show("Game is Loaded");
+            }
+        }
+        private void NewGame()
+        {
+            //Model And UI
+            gameOver = false;
+            isXTurn = true;
+            
+            for (int i =0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    _a[i, j] = 0;
+                    _buttons[i, j].Content = "";
+                }
+            }
+        }
+
+        private void NewGame_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show("New Game?", "Caro", MessageBoxButton.YesNo);
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    NewGame();
+                    break;
+                case MessageBoxResult.No:
+                    break;
             }
         }
     }
