@@ -387,7 +387,7 @@ namespace Caro
                 case MessageBoxResult.No:
                     break;
             }
-        }
+        } 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             //do my stuff before closing
